@@ -8,11 +8,12 @@
 
 #import "MainVC.h"
 
-@interface MainVC ()
+@interface MainVC () <UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UISearchBar *searchBar;
+@property (nonatomic, strong) UIPageControl *pageControll;
 
 @end
 
@@ -27,19 +28,44 @@
     
     _tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
     
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    
     _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 260)];
-    _scrollView.contentSize = CGSizeMake(self.view.frame.size.width * 3, 0);
+    _scrollView.contentSize = CGSizeMake(self.view.frame.size.width * 5, 0);
     _scrollView.pagingEnabled = YES;
     _scrollView.showsHorizontalScrollIndicator = NO;
+    _scrollView.delegate = self;
+    [_scrollView setContentOffset:CGPointMake(self.view.frame.size.width, 0) animated:NO];
     [self.view addSubview:_scrollView];
     
+    _pageControll = [[UIPageControl alloc] initWithFrame:CGRectMake(0, 230, self.view.frame.size.width, 30)];
+    _pageControll.numberOfPages = 3;
+    _pageControll.currentPageIndicatorTintColor = [UIColor orangeColor];
+    _pageControll.pageIndicatorTintColor = [UIColor lightGrayColor];
+    [self.view addSubview:_pageControll];
+//    
     UIView *first = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 180)];
     UIView *second = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width, 0, self.view.frame.size.width, 180)];
     UIView *third = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width * 2, 0, self.view.frame.size.width, 180)];
     
+//    UIView *first = [[UIView alloc] init];
+//    UIView *second = [[UIView alloc] init];
+//    UIView *third = [[UIView alloc] init];
+//    
+//    NSArray *imageViews = @[@"third", @"first", @"second", @"third", @"first"];
+//    
+//    for (int i = 0; i < imageViews.count; i++) {
+//        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:imageViews[i]]];
+//        imageView.frame = CGRectMake(self.view.frame.size.width * i, 0, self.view.frame.size.width, self.view.frame.size.height);
+//        [_scrollView addSubview:imageView];
+//        imageView.backgroundColor = [UIColor orangeColor];
+//    }
+    [_scrollView addSubview:third];
     [_scrollView addSubview:first];
     [_scrollView addSubview:second];
     [_scrollView addSubview:third];
+    [_scrollView addSubview:first];
     
     NSArray *arr1 = @[@"美食", @"小吃快餐", @"休闲娱乐", @"全部分类", @"团购", @"订酒店", @"订外卖", @"看电影"];
     NSArray *images1 = @[@"food_u@3x", @"snack_u@3x", @"bar_o@3x", @"more_o@3x", @"groupon_u@3x", @"hotel_u@3x", @"takeaway_u@3x", @"film_u@3x"];
@@ -127,6 +153,40 @@
             }
         }
     }
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 5;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (section == 4) {
+        return 10;
+    } else {
+        return 1;
+    }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    if (scrollView.contentOffset.x == 0) {
+        [scrollView setContentOffset:CGPointMake(self.view.frame.size.width * 3, 0) animated:NO];
+        _pageControll.currentPage = 2;
+        return;
+    }
+    if (scrollView.contentOffset.x == self.view.frame.size.width * 4) {
+        [scrollView setContentOffset:CGPointMake(self.view.frame.size.width, 0) animated:NO];
+        _pageControll.currentPage = 0;
+        return;
+    }
+    _pageControll.currentPage = scrollView.contentOffset.x / self.view.frame.size.width - 1;
 }
 
 - (void)didReceiveMemoryWarning {
